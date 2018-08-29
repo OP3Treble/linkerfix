@@ -8,4 +8,4 @@ TARGET_LD_SHIM_LIBS := \
     /vendor/lib/hw/camera.msm8996.so|libcamera_shim.so
 ```
 
-Reference: https://review.lineageos.org/c/LineageOS/android_bionic/+/223065/2
+Reference: https://review.lineageos.org/c/LineageOS/android_bionic/+/223065/6

@@ -1,21 +1,19 @@
 #!/sbin/sh
 FD=$2
-
+ZIP=$3
 ui_print() {
-  echo -n -e "ui_print $1\n" > /proc/self/fd/$FD
-  echo -n -e "ui_print\n" > /proc/self/fd/$FD
+    echo -n -e "ui_print $1\n" > /proc/self/fd/$FD
+    echo -n -e "ui_print\n" > /proc/self/fd/$FD
 }
 
 copy_linker()
 {
-    if [ -f /vendor/bin/linker ]; then
-        ui_print "- Copying linker from vendor"
-        cp -f /vendor/bin/linker /system/bin/linker
-    else
-        ui_print "- Copying linker from zip"
-        cp -f /tmp/bin/linker /system/bin/linker	
-    fi
+    ui_print "- Copying linker_$1 from zip to /tmp"
+    unzip -o $ZIP bin/linker_$1 -d /tmp/
+    ui_print "- Overwrite linker_$1 to GSI"
+    cp -f /tmp/bin/linker_$1 /system/bin/linker	
     ui_print "- Fixing linker permision"
+    chmod 755 /system/bin/linker
     chown -h root.shell /system/bin/linker
 }
 
@@ -32,22 +30,32 @@ ui_print "Link: github.com/OP3Treble/linkerfix"
 ui_print "************************************"
 
 # Mount partition
-mount system
-mount vendor
+mount /system
+mount /vendor
+
+SDK=$(cat /system/build.prop | grep ro.build.version.sdk | cut -d"=" -f2)
 
 # Self Function
-copy_linker
 
-### TODO: Not working in 9.0 GSI, we need to compile linker under LOS 16
-# # Needed by 9.0 GSI vndksupport
-# fix_libs libcameraservice.so
-# fix_libs vendor.qti.hardware.camera.device@1.0
-# fix_libs libutilscallstack.so
-# fix_libs android.hardware.camera.device@3.4.so
+
+if [ $SDK -ge 28 ]; then
+    # Needed by 9.0 AOSP GSI vndksupport (Still broken)
+    copy_linker 28
+    fix_libs libcameraservice.so
+    fix_libs libsensorservice.so
+    fix_libs libutilscallstack.so
+    fix_libs android.hardware.camera.device@3.4.so
+    fix_libs vendor.qti.hardware.camera.device@1.0.so
+elif [ $SDK -eq 27 ]; then
+    copy_linker 27
+else
+    # Suspect you are using 9.0 GSI, but not meet AOSP standards
+    copy_linker 28
+fi
 
 # Unmount partition
-umount system
-umount vendor
+umount /system
+umount /vendor
 
 ui_print "Succeed."
 

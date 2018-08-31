@@ -9,3 +9,4 @@ TARGET_LD_SHIM_LIBS := \
 ```
 
 Reference: https://review.lineageos.org/c/LineageOS/android_bionic/+/223065/6
+           https://github.com/phhusson/treble_experimentations/issues/165

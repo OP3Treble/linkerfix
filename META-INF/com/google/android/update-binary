@@ -24,7 +24,7 @@ copy_libs()
     ui_print "- Copying $1 to /vendor"
     cp -f /tmp/lib/$1 /vendor/lib/$1	
     ui_print "- Fixing linker permision"
-    chmod 755 /vendor/lib/$1
+    chmod 644 /vendor/lib/$1
     chown -h root.root /vendor/lib/$1
 }
 

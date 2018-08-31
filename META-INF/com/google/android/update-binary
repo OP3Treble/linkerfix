@@ -21,7 +21,7 @@ fix_libs()
 {
     ui_print "- Fixing missing $1"
     cp -f /system/lib/$1 /vendor/lib/$1
-    cp -f /system/lib64/$1 /vendor/lib64/$1
+    # cp -f /system/lib64/$1 /vendor/lib64/$1
 }
 
 ui_print "************************************"
@@ -41,6 +41,7 @@ SDK=$(cat /system/build.prop | grep ro.build.version.sdk | cut -d"=" -f2)
 if [ $SDK -ge 28 ]; then
     # Needed by 9.0 AOSP GSI vndksupport (Still broken)
     copy_linker 28
+    fix_libs libbinder.so
     fix_libs libcameraservice.so
     fix_libs libsensorservice.so
     fix_libs libutilscallstack.so

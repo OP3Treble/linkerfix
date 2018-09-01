@@ -1,17 +1,23 @@
 #!/sbin/sh
-FD=$2
-ZIP=$3
+FD="$2"
+ZIP="$3"
 ui_print() {
-    echo -n -e "ui_print $1\n" > /proc/self/fd/$FD
-    echo -n -e "ui_print\n" > /proc/self/fd/$FD
+    echo -n -e "ui_print $1\n" > /proc/self/fd/${FD}
+    echo -n -e "ui_print\n" > /proc/self/fd/${FD}
+}
+
+abort() {
+    ui_print $1
+    exit 1
 }
 
 copy_linker()
 {
     ui_print "- Copying linker_$1 from zip to /tmp"
-    unzip -o $ZIP bin/linker_$1 -d /tmp/
+    unzip -o ${ZIP} bin/linker_$1 -d /tmp/ >&2
+    [ ! -f /tmp/bin/linker_$1 ] && abort "! Unable to extract zip file!"
     ui_print "- Overwrite linker_$1 to GSI"
-    cp -f /tmp/bin/linker_$1 /system/bin/linker	
+    cp -f /tmp/bin/linker_$1 /system/bin/linker
     ui_print "- Fixing linker permision"
     chmod 755 /system/bin/linker
     chown -h root.shell /system/bin/linker
@@ -20,20 +26,21 @@ copy_linker()
 copy_libs()
 {
     ui_print "- Copying $1 from zip to /tmp"
-    unzip -o $ZIP lib/$1 -d /tmp/
+    unzip -o ${ZIP} lib/$1 -d /tmp/ >&2
+    [ ! -f /tmp/lib/$1 ] && abort "! Unable to extract zip file!"
     ui_print "- Copying $1 to /vendor"
-    cp -f /tmp/lib/$1 /vendor/lib/$1	
+    cp -f /tmp/lib/$1 /vendor/lib/$1
     ui_print "- Fixing linker permision"
     chmod 644 /vendor/lib/$1
     chown -h root.root /vendor/lib/$1
 }
 
-fix_libs()
-{
-    ui_print "- Fixing missing $1"
-    cp -f /system/lib/$1 /vendor/lib/$1
-    cp -f /system/lib64/$1 /vendor/lib64/$1
-}
+# fix_libs()
+# {
+#     ui_print "- Fixing missing $1"
+#     cp -f /system/lib/$1 /vendor/lib/$1
+#     cp -f /system/lib64/$1 /vendor/lib64/$1
+# }
 
 ui_print "************************************"
 ui_print "**   GSI Linker Fix by simonsmh   **"
@@ -47,7 +54,7 @@ mount /vendor
 SDK=$(cat /system/build.prop | grep ro.build.version.sdk | cut -d"=" -f2)
 
 # Self Function
-if [ $SDK -ge 28 ]; then
+if [ ${SDK} -ge 28 ]; then
     copy_linker 28
     copy_libs libcameraservice.so
 else

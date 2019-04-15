@@ -1,5 +1,5 @@
 # linkerfix
-This repo contains a linker (32-bit) binary with shim libs support compiled in.
+This repo contains a linker (32-bit) binary with shim libs & libcameraservice support compiled in.
 
 This linker supports unofficial OP3Treble Project:
 

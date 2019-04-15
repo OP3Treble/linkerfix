@@ -25,14 +25,14 @@ copy_linker()
 
 copy_libs()
 {
-    ui_print "- Copying $1 from zip to /tmp"
-    unzip -o ${ZIP} lib/$1 -d /tmp/ >&2
-    [ ! -f /tmp/lib/$1 ] && abort "! Unable to extract zip file!"
-    ui_print "- Copying $1 to /vendor"
-    cp -f /tmp/lib/$1 /vendor/lib/$1
-    ui_print "- Fixing linker permision"
-    chmod 644 /vendor/lib/$1
-    chown -h root.root /vendor/lib/$1
+    ui_print "- Copying libcameraservice.so_$1 from zip to /tmp"
+    unzip -o ${ZIP} lib/libcameraservice.so_$1 -d /tmp/ >&2
+    [ ! -f /tmp/lib/libcameraservice.so_$1 ] && abort "! Unable to extract zip file!"
+    ui_print "- Copying libcameraservice.so_$1 to /vendor"
+    cp -f /tmp/lib/libcameraservice.so_$1 /vendor/lib/libcameraservice.so
+    ui_print "- Fixing libs permision"
+    chmod 644 /vendor/lib/libcameraservice.so
+    chown -h root.root /vendor/lib/libcameraservice.so
 }
 
 # fix_libs()
@@ -43,7 +43,7 @@ copy_libs()
 # }
 
 ui_print "************************************"
-ui_print "**   GSI Linker Fix by simonsmh   **"
+ui_print "**   GSI Camera Fix by simonsmh   **"
 ui_print "Link: github.com/OP3Treble/linkerfix"
 ui_print "************************************"
 
@@ -54,9 +54,12 @@ mount /vendor
 SDK=$(cat /system/build.prop | grep ro.build.version.sdk | cut -d"=" -f2)
 
 # Self Function
-if [ ${SDK} -ge 28 ]; then
+if [ ${SDK} -ge 29 ]; then
+    #copy_linker 29
+    copy_libs 29
+elif [ ${SDK} -eq 28 ]; then
     copy_linker 28
-    copy_libs libcameraservice.so
+    copy_libs 28
 else
     copy_linker 27
 fi
